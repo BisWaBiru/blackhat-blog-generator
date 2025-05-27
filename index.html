@@ -69,8 +69,7 @@
 
     function buildPrompt(data, mode) {
       const base = `Write a ${data.wordCount}-word blog post about "${data.titleKeyword}".`;
-      const htmlNote = data.outputFormat === 'html' ? `
-Use valid HTML5 structure with semantic tags like <title>, <meta>, <h1>, <h2>, <p>, <ul>, <li>, and so on.` : '';
+      const htmlNote = data.outputFormat === 'html' ? `\nUse valid HTML5 structure with semantic tags like <title>, <meta>, <h1>, <h2>, <p>, <ul>, <li>, and so on.` : '';
 
       let extra = '';
       if (mode === "normal") {
@@ -78,8 +77,11 @@ Use valid HTML5 structure with semantic tags like <title>, <meta>, <h1>, <h2>, <
 Include internal links (${data.internalLinks}) and related keywords (${data.relatedKeywords}).
 Embed business info if provided (${data.businessInfo}).`;
       } else {
-        extra = `Use blackhat tactics including 7–8% keyword density, white-on-white text, cloaking script for Googlebot, and spun content.
-Include internal links (${data.internalLinks}), related keywords (${data.relatedKeywords}), and embed business info if provided (${data.businessInfo}).`;
+        extra = `Simulate a high-aggressiveness SEO test scenario.
+Target a keyword density around 7–8% for "${data.mainKeyword}".
+Include obfuscated or unconventional formatting (e.g., hidden styles, experimental cloaking conditions, high variation phrasing).
+Incorporate internal links (${data.internalLinks}), semantic keyword variants (${data.relatedKeywords}), and insert business details where appropriate (${data.businessInfo}).
+Ensure all output is raw HTML.`;
       }
 
       return `${base}\n${htmlNote}\n${extra}`;
