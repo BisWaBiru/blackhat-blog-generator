@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Black Hat Blog Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
-
   <div class="max-w-6xl mx-auto p-6">
     <h1 class="text-3xl font-bold mb-6 text-center">🩸 Black Hat Blog Generator</h1>
 
@@ -17,49 +16,19 @@
 
     <form id="blogForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-bold mb-2">Title or Main Keyword:</label>
-          <input type="text" id="titleKeyword" class="w-full p-2 border rounded" required />
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Main Keyword:</label>
-          <input type="text" id="mainKeyword" class="w-full p-2 border rounded" required />
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Related Keywords (comma-separated):</label>
-          <input type="text" id="relatedKeywords" class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Internal Links (comma-separated):</label>
-          <input type="text" id="internalLinks" class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Business Info:</label>
-          <textarea id="businessInfo" rows="3" class="w-full p-2 border rounded"></textarea>
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Word Count:</label>
-          <select id="wordCount" class="w-full p-2 border rounded">
-            <option value="500">500</option>
-            <option value="1000">1000</option>
-            <option value="1500">1500</option>
-            <option value="2000">2000</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Output Format:</label>
+        <div><label class="block text-sm font-bold mb-2">Title or Main Keyword:</label><input type="text" id="titleKeyword" class="w-full p-2 border rounded" required /></div>
+        <div><label class="block text-sm font-bold mb-2">Main Keyword:</label><input type="text" id="mainKeyword" class="w-full p-2 border rounded" required /></div>
+        <div><label class="block text-sm font-bold mb-2">Related Keywords:</label><input type="text" id="relatedKeywords" class="w-full p-2 border rounded" /></div>
+        <div><label class="block text-sm font-bold mb-2">Internal Links:</label><input type="text" id="internalLinks" class="w-full p-2 border rounded" /></div>
+        <div><label class="block text-sm font-bold mb-2">Business Info:</label><textarea id="businessInfo" rows="3" class="w-full p-2 border rounded"></textarea></div>
+        <div><label class="block text-sm font-bold mb-2">Word Count:</label><select id="wordCount" class="w-full p-2 border rounded">
+          <option value="500">500</option><option value="1000">1000</option><option value="1500">1500</option><option value="2000">2000</option>
+        </select></div>
+        <div><label class="block text-sm font-bold mb-2">Output Format:</label>
           <div class="flex space-x-4">
             <label><input type="radio" name="outputFormat" value="html" checked /> HTML</label>
             <label><input type="radio" name="outputFormat" value="plain" /> Plain Text</label>
           </div>
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Image Prompt:</label>
-          <input type="text" id="imagePrompt" class="w-full p-2 border rounded" />
-        </div>
-        <div>
-          <label class="block text-sm font-bold mb-2">Image URL:</label>
-          <input type="text" id="imageUrl" class="w-full p-2 border rounded" />
         </div>
       </div>
 
@@ -84,56 +53,42 @@
   </div>
 
   <script>
-    const form = document.getElementById("blogForm");
-    const outputSection = document.getElementById("outputSection");
     const blogPreview = document.getElementById("blogPreview");
-    const downloadBtn = document.getElementById("downloadBtn");
+    const outputSection = document.getElementById("outputSection");
     const loadingDiv = document.getElementById("loading");
     const errorDiv = document.getElementById("error");
+    const downloadBtn = document.getElementById("downloadBtn");
 
     function getFormData() {
-      const elements = form.elements;
-      const data = {
-        titleKeyword: elements.titleKeyword.value.trim(),
-        mainKeyword: elements.mainKeyword.value.trim(),
-        relatedKeywords: elements.relatedKeywords.value.trim(),
-        internalLinks: elements.internalLinks.value.trim(),
-        businessInfo: elements.businessInfo.value.trim(),
-        wordCount: elements.wordCount.value,
-        outputFormat: [...form.outputFormat].find(r => r.checked)?.value || 'html',
-        imagePrompt: elements.imagePrompt.value.trim(),
-        imageUrl: elements.imageUrl.value.trim(),
-      };
-      return data;
+      const form = document.getElementById("blogForm");
+      const data = new FormData(form);
+      return Object.fromEntries(data.entries());
     }
 
     function buildPrompt(data, mode) {
-      const basePrompt = `Write a ${data.wordCount}-word blog post.`;
+      const base = `Write a ${data.wordCount}-word blog post about "${data.titleKeyword}".`;
+      const htmlNote = data.outputFormat === 'html' ? `
+Use valid HTML5 structure with semantic tags like <title>, <meta>, <h1>, <h2>, <p>, <ul>, <li>, and so on.` : '';
 
-      let extra = "";
+      let extra = '';
       if (mode === "normal") {
-        extra = `Make it SEO-friendly with around 4-5% keyword density.
-Include meta tags, headings, internal links (${data.internalLinks}), related keywords (${data.relatedKeywords}).
-Include business info: ${data.businessInfo}.`;
+        extra = `Make it SEO-optimized with 3–4% keyword density for "${data.mainKeyword}".
+Include internal links (${data.internalLinks}) and related keywords (${data.relatedKeywords}).
+Embed business info if provided (${data.businessInfo}).`;
       } else {
-        extra = `Generate a BLACK HAT blog with 8-9% keyword density.
-Use hidden white-on-white text, cloaking scripts, spun content variations, internal links (${data.internalLinks}), related keywords (${data.relatedKeywords}).
-Include business info: ${data.businessInfo}.`;
+        extra = `Use blackhat tactics including 7–8% keyword density, white-on-white text, cloaking script for Googlebot, and spun content.
+Include internal links (${data.internalLinks}), related keywords (${data.relatedKeywords}), and embed business info if provided (${data.businessInfo}).`;
       }
 
-      return `${basePrompt}\n${extra}`;
+      return `${base}\n${htmlNote}\n${extra}`;
     }
 
     async function generateBlog(mode) {
       const data = getFormData();
-      if (!data.mainKeyword) {
-        showError("Main keyword is required.");
-        return;
-      }
-
+      if (!data.mainKeyword) return showError("Main keyword is required.");
       const prompt = buildPrompt(data, mode);
-      showLoading();
 
+      showLoading();
       try {
         const res = await fetch("https://blackhat-backend.onrender.com/api/generate", {
           method: "POST",
@@ -142,19 +97,17 @@ Include business info: ${data.businessInfo}.`;
         });
 
         if (!res.ok) throw new Error("Request failed");
-
         const result = await res.json();
-        let content = result.choices?.[0]?.message?.content || "⚠️ No content returned.";
+        let content = result.choices?.[0]?.message?.content || "No content returned.";
 
         if (mode === "extreme") {
-          content = `
-<style>.hidden-text{color:white;background:white;}.cloak{display:none;}</style>
-<div class="hidden-text">${Array(10).fill(data.mainKeyword).join(" ")}</div>
+          content = `<style>.hidden-text{color:white;background:white;}.cloak{display:none;}</style>
+<div class="hidden-text">${data.mainKeyword.repeat(10)}</div>
 ${content}
-<scr"+"ipt class="cloak">if(navigator.userAgent.includes('Googlebot')){document.write('<div style="display:none">Spam for bots</div>');}</scr"+"ipt>`;
+<scr"+"ipt class='cloak'>if(navigator.userAgent.includes('Googlebot')){document.write('<div style="display:none">Spam for bots</div>');}</scr"+"ipt>`;
         }
 
-        showOutput(content, data.outputFormat === "html", mode);
+        showOutput(content, data.outputFormat === 'html', mode);
       } catch (err) {
         console.error(err);
         showError("Failed to generate blog. Please try again later.");
@@ -166,15 +119,14 @@ ${content}
     function showOutput(content, isHtml, mode) {
       blogPreview.innerHTML = "";
       if (isHtml) {
-        const temp = document.createElement("div");
-        temp.innerHTML = content;
-        blogPreview.appendChild(temp);
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = content;
+        blogPreview.appendChild(wrapper);
       } else {
         const pre = document.createElement("pre");
         pre.textContent = content;
         blogPreview.appendChild(pre);
       }
-
       outputSection.classList.remove("hidden");
 
       downloadBtn.onclick = () => {
