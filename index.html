@@ -16,12 +16,12 @@
 
     <form id="blogForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label class="block text-sm font-bold mb-2">Title or Main Keyword:</label><input type="text" id="titleKeyword" class="w-full p-2 border rounded" required /></div>
-        <div><label class="block text-sm font-bold mb-2">Main Keyword:</label><input type="text" id="mainKeyword" class="w-full p-2 border rounded" required /></div>
-        <div><label class="block text-sm font-bold mb-2">Related Keywords:</label><input type="text" id="relatedKeywords" class="w-full p-2 border rounded" /></div>
-        <div><label class="block text-sm font-bold mb-2">Internal Links:</label><input type="text" id="internalLinks" class="w-full p-2 border rounded" /></div>
-        <div><label class="block text-sm font-bold mb-2">Business Info:</label><textarea id="businessInfo" rows="3" class="w-full p-2 border rounded"></textarea></div>
-        <div><label class="block text-sm font-bold mb-2">Word Count:</label><select id="wordCount" class="w-full p-2 border rounded">
+        <div><label class="block text-sm font-bold mb-2">Title or Main Keyword:</label><input type="text" id="titleKeyword" name="titleKeyword" class="w-full p-2 border rounded" required /></div>
+        <div><label class="block text-sm font-bold mb-2">Main Keyword:</label><input type="text" id="mainKeyword" name="mainKeyword" class="w-full p-2 border rounded" required /></div>
+        <div><label class="block text-sm font-bold mb-2">Related Keywords:</label><input type="text" id="relatedKeywords" name="relatedKeywords" class="w-full p-2 border rounded" /></div>
+        <div><label class="block text-sm font-bold mb-2">Internal Links:</label><input type="text" id="internalLinks" name="internalLinks" class="w-full p-2 border rounded" /></div>
+        <div><label class="block text-sm font-bold mb-2">Business Info:</label><textarea id="businessInfo" name="businessInfo" rows="3" class="w-full p-2 border rounded"></textarea></div>
+        <div><label class="block text-sm font-bold mb-2">Word Count:</label><select id="wordCount" name="wordCount" class="w-full p-2 border rounded">
           <option value="500">500</option><option value="1000">1000</option><option value="1500">1500</option><option value="2000">2000</option>
         </select></div>
         <div><label class="block text-sm font-bold mb-2">Output Format:</label>
@@ -62,7 +62,9 @@
     function getFormData() {
       const form = document.getElementById("blogForm");
       const data = new FormData(form);
-      return Object.fromEntries(data.entries());
+      const obj = Object.fromEntries(data.entries());
+      obj.outputFormat = form.querySelector('input[name="outputFormat"]:checked')?.value || 'html';
+      return obj;
     }
 
     function buildPrompt(data, mode) {
@@ -85,7 +87,7 @@ Include internal links (${data.internalLinks}), related keywords (${data.related
 
     async function generateBlog(mode) {
       const data = getFormData();
-      if (!data.mainKeyword) return showError("Main keyword is required.");
+      if (!data.mainKeyword || data.mainKeyword.trim() === '') return showError("Main keyword is required.");
       const prompt = buildPrompt(data, mode);
 
       showLoading();
@@ -104,7 +106,7 @@ Include internal links (${data.internalLinks}), related keywords (${data.related
           content = `<style>.hidden-text{color:white;background:white;}.cloak{display:none;}</style>
 <div class="hidden-text">${data.mainKeyword.repeat(10)}</div>
 ${content}
-<scr"+"ipt class='cloak'>if(navigator.userAgent.includes('Googlebot')){document.write('<div style="display:none">Spam for bots</div>');}</scr"+"ipt>`;
+<scr"+"ipt class='cloak'>if(navigator.userAgent.includes('Googlebot')){document.write('<div style=\"display:none\">Spam for bots</div>');}</scr"+"ipt>`;
         }
 
         showOutput(content, data.outputFormat === 'html', mode);
